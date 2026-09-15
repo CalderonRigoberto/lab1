@@ -3,6 +3,8 @@ package com.rigocalderon.lab1;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -20,15 +22,17 @@ public class RegisterBookingUseCase {
     public Long ejecutar(NewBookingDto dto) {
         final Long[] bookingId = {-1L};
 
-        int rowsUpdated = eventRepository.actualizarEspaciosDisponibles(dto.eventId());
-        if(rowsUpdated == 0) {
-            return -1L;
+        Optional<Event> optionalEvent = eventRepository.findByIdWithPessimisticLock(dto.eventId());
+        if(optionalEvent.isPresent()) {
+            Event event = optionalEvent.get();
+            if(event.getAvailableStock() <= 0) return bookingId[0];
+
+            event.setAvailableStock(event.getAvailableStock() - 1);
+
+            Booking booking = Booking.newBooking(dto.eventId(), dto.userId());
+            bookingRepository.save(booking);
+            bookingId[0] = booking.getId();
         }
-
-        Booking booking = Booking.newBooking(dto.eventId(), dto.userId());
-        bookingRepository.save(booking);
-        bookingId[0] = booking.getId();
-
 
        return bookingId[0];
     }
