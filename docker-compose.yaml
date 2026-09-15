@@ -1,0 +1,51 @@
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: test-postgres
+    hostname: postgres
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+      - postgres:/var/lib/postgresql
+
+  lab1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lab1
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - postgres
+
+  master:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://master:8089
+    depends_on:
+      - lab1
+  
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master --processes 4
+    depends_on:
+      - lab1
+
+
+volumes:
+  postgres:
