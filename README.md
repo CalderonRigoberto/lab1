@@ -84,7 +84,7 @@ int actualizarEspaciosDisponibles(@Param("id") Long id);
 
 ### Validación Atómica (mejor approach)
 
-![Resultados atomic](screenshots/resultados_lab1_1.png)
+![Resultados atomic](screenshots/resultados_lab1_1_1.png)
 
 - **p50**: ~21ms | **p95**: ~33ms
 - La fila solo se bloquea en milésimas de segundo durante el UPDATE. Sin reintentos, sin overbooking. Mejor performance de los tres approaches.
