@@ -11,11 +11,11 @@ import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.READ)
     @Query("""
         SELECT e FROM Event  e WHERE id = :id
     """)
-    Optional<Event> findByIdWithPessimisticLock(@Param("id") long id);
+    Optional<Event> findByIdWithOptimistic(@Param("id") long id);
 
     @Modifying
     @Query("""
