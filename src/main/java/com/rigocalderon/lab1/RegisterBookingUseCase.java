@@ -22,7 +22,7 @@ public class RegisterBookingUseCase {
     public Long ejecutar(NewBookingDto dto) {
         final Long[] bookingId = {-1L};
 
-        Optional<Event> optionalEvent = eventRepository.findByIdWithOptimistic(dto.eventId());
+        Optional<Event> optionalEvent = eventRepository.findById(dto.eventId());
         if(optionalEvent.isPresent()) {
             Event event = optionalEvent.get();
             if(event.getAvailableStock() <= 0) return bookingId[0];
